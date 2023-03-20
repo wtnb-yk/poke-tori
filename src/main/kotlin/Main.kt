@@ -2,23 +2,56 @@ import com.google.common.io.Files
 import org.apache.commons.lang3.StringUtils
 import java.io.File
 import java.nio.charset.StandardCharsets
+import java.util.stream.Collectors
+import java.util.stream.Stream
 
 fun main() {
     // ポケモンの一覧を取得
-//    readCSV("./src/main/resources/pokemon.csv")
-    getPokemonList("./src/main/resources/pokemon_test.csv")
+    val pokemonStream = getPokemonList("./src/main/resources/pokemon.csv")
 
     // 先頭の文字ごとにマッピング
-
+    val pokemonKanaMap = pokemonStream
+        .flatMap { it.entries.stream() }
+        .collect(Collectors.groupingBy { it.value.substring(0, 1) })
 
     // 取得した一覧でしりとりを開始
-    // 濁音、半濁音、拗音は変換する
+    var parties = emptyArray<Array<String>>()
+    pokemonKanaMap
+        .entries
+        .forEach{
+            val pokemonGroupingByKane = it.value
+            for ((_, name) in pokemonGroupingByKane) {
+                var party = emptyArray<String>()
 
-    // パーティが6匹になったら返却値に追加
+                // 1匹目をパーティに追加
+                party += name
 
+                // TODO: 2~6匹目をしりとりで探索
+                //// 前のポケモンの末尾を取得
+                val lastKana = name.substring(name.lastIndex)
+
+                //// TODO: 濁音、半濁音、拗音は変換する
+                val pokemonGroupingByNextKana = pokemonKanaMap[lastKana]
+                if (pokemonGroupingByNextKana != null) {
+                    for ((_, name2) in pokemonGroupingByNextKana) {
+                        party += name2
+                    }
+                }
+
+                // パーティが6匹になったら返却値に追加
+                if (party.size == 6) {
+                    parties += party
+                }
+            }
+        }
+    parties.forEach {
+        if (it.isNotEmpty()) {
+            println(it.contentToString())
+        }
+    }
 }
 
-private fun getPokemonList(filePath: String, doubleQuote: Boolean = false) {
+private fun getPokemonList(filePath: String, doubleQuote: Boolean = false): Stream<Map<String, String>> {
     val enclosure = if (doubleQuote) "\"" else ""
     val charSource = Files.asCharSource(File(filePath), StandardCharsets.UTF_8)
 
@@ -28,14 +61,10 @@ private fun getPokemonList(filePath: String, doubleQuote: Boolean = false) {
     } ?: throw RuntimeException("Header is empty.")
 
     // データ行
-    charSource.lines()
+    return charSource.lines()
         .skip(1)
         .map { parseLine(it, enclosure) }
         .map { it.mapIndexed { index, column -> (headers[index] to column) }.toMap() }
-        .forEach {
-            // 1行ごとの処理
-            println(it)
-        }
 }
 
 private fun parseLine(line: String, enclosure: String): List<String> {
