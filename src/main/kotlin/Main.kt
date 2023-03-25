@@ -12,7 +12,8 @@ fun main() {
     // 先頭の文字ごとにマッピング
     val pokemonKanaMap = pokemonStream
         .flatMap { it.entries.stream() }
-        .collect(Collectors.groupingBy { it.value.substring(0, 1) })
+        //// TODO: 濁音、半濁音、拗音は変換する
+        .collect(Collectors.groupingBy { convertToUnvoicedConsonant(it.value.substring(0, 1)) })
 
     // 取得した一覧でしりとりを開始
     var parties = emptyArray<Array<String>>()
@@ -30,8 +31,8 @@ fun main() {
                 //// 前のポケモンの末尾を取得
                 val lastKana = name.substring(name.lastIndex)
 
-                //// TODO: 濁音、半濁音、拗音は変換する
-                val pokemonGroupingByNextKana = pokemonKanaMap[lastKana]
+                //// 濁音、半濁音、拗音は変換する
+                val pokemonGroupingByNextKana = pokemonKanaMap[convertToUnvoicedConsonant(lastKana)]
                 if (pokemonGroupingByNextKana != null) {
                     for ((_, name2) in pokemonGroupingByNextKana) {
                         party += name2
@@ -69,6 +70,10 @@ private fun getPokemonList(filePath: String, doubleQuote: Boolean = false): Stre
 
 private fun parseLine(line: String, enclosure: String): List<String> {
     return line
-    .let { StringUtils.removeStart(line, enclosure) }
-    .let { StringUtils.removeEnd(it, enclosure) }.split("$enclosure,$enclosure")
+        .let { StringUtils.removeStart(line, enclosure) }
+        .let { StringUtils.removeEnd(it, enclosure) }.split("$enclosure,$enclosure")
+}
+private fun convertToUnvoicedConsonant(kana: String): String {
+    // TODO: implementation
+    return kana
 }
