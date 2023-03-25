@@ -7,12 +7,11 @@ import java.util.stream.Stream
 
 fun main() {
     // ポケモンの一覧を取得
-    val pokemonStream = getPokemonList("./src/main/resources/pokemon.csv")
+    val pokemonList = getPokemonList("./src/main/resources/pokemon.csv")
 
     // 先頭の文字ごとにマッピング
-    val pokemonKanaMap = pokemonStream
+    val pokemonKanaMap = pokemonList
         .flatMap { it.entries.stream() }
-        //// TODO: 濁音、半濁音、拗音は変換する
         .collect(Collectors.groupingBy { convertToUnvoicedConsonant(it.value.substring(0, 1)) })
 
     // 取得した一覧でしりとりを開始
@@ -20,16 +19,16 @@ fun main() {
     pokemonKanaMap
         .entries
         .forEach{
-            val pokemonGroupingByKane = it.value
-            for ((_, name) in pokemonGroupingByKane) {
+            val pokemonGroupingByKana = it.value
+            for ((_, name) in pokemonGroupingByKana) {
                 var party = emptyArray<String>()
 
                 // 1匹目をパーティに追加
                 party += name
 
                 // TODO: 2~6匹目をしりとりで探索
-                //// 前のポケモンの末尾を取得
-                val lastKana = name.substring(name.lastIndex)
+                //// 前のポケモンの名前の末尾を取得
+                val lastKana = retrieveLastCharacter(name)
 
                 //// 濁音、半濁音、拗音は変換する
                 val pokemonGroupingByNextKana = pokemonKanaMap[convertToUnvoicedConsonant(lastKana)]
@@ -76,4 +75,8 @@ private fun parseLine(line: String, enclosure: String): List<String> {
 private fun convertToUnvoicedConsonant(kana: String): String {
     // TODO: implementation
     return kana
+}
+private fun retrieveLastCharacter(string: String): String {
+    //// TODO: 最後が「ー」ならその１文字前を取得
+    return string.substring(string.lastIndex)
 }
