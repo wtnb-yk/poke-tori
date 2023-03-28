@@ -23,11 +23,13 @@ fun main() {
     // 先頭の文字ごとにマッピング
     val pokemonKanaMap = pokemonList
         .flatMap { it.entries.stream() }
-        .collect(Collectors.groupingBy { convertToUnvoicedConsonant(it.value.substring(0, 1)) })
+        .collect(Collectors.groupingBy { convertToUnvoicedConsonant(it.value.toCharArray()[0]) })
 
     // 取得した一覧でしりとりを開始
     var parties = emptyArray<Array<String>>()
-    val pokemonGroupingByKana = pokemonKanaMap[input]
+
+    val initial = input.toCharArray()[0]
+    val pokemonGroupingByKana = pokemonKanaMap[initial]
     if (pokemonGroupingByKana == null) {
         println("対象の文字で始まるポケモンがいなかったため処理終了")
         return
@@ -87,13 +89,17 @@ private fun parseLine(line: String, enclosure: String): List<String> {
         .let { StringUtils.removeStart(line, enclosure) }
         .let { StringUtils.removeEnd(it, enclosure) }.split("$enclosure,$enclosure")
 }
-private fun convertToUnvoicedConsonant(kana: String): String {
+private fun convertToUnvoicedConsonant(kana: Char): Char {
     // TODO: implementation
     return kana
 }
-private fun retrieveLastCharacter(string: String): String {
-    //// TODO: 最後が「ー」ならその１文字前を取得
-    return string.substring(string.lastIndex)
+private fun retrieveLastCharacter(str: String): Char {
+    val lastStrIndex = str.lastIndex
+    return if (lastStrIndex > 0 && str[lastStrIndex] == 'ー') {
+        str[lastStrIndex - 1]
+    } else {
+        str[lastStrIndex]
+    }
 }
 
 private fun isKatakanaOneChar(str: String): Boolean {
