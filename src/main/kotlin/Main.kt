@@ -90,8 +90,14 @@ private fun parseLine(line: String, enclosure: String): List<String> {
         .let { StringUtils.removeEnd(it, enclosure) }.split("$enclosure,$enclosure")
 }
 private fun convertToUnvoicedConsonant(kana: Char): Char {
-    // TODO: implementation
-    return kana
+    val t = "アアイイウウエエオオカカキキククケケココササシシススセセソソタタチチツツツテテトトナニヌネノハハハヒヒヒフフフヘヘヘホホホマミムメモヤヤユユヨヨラリルレロワワヰヱヲン"
+    // ァアィイゥウェエォオカガキギクグケゲコゴサザシジスズセゼソゾタダチヂッツヅテデトドナニヌネノハバパヒビピフブプヘベペホボポマミムメモャヤュユョヨラリルレロヮワヰヱヲン
+
+    return if (kana in 'ァ'..'ン') {
+        t[kana.code - 'ァ'.code]
+    } else {
+        kana
+    }
 }
 private fun retrieveLastCharacter(str: String): Char {
     val lastStrIndex = str.lastIndex
