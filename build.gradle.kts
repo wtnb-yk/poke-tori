@@ -11,7 +11,8 @@ repositories {
 
 dependencies {
     testImplementation(kotlin("test"))
-    implementation("com.google.guava:guava:30.1.1-jre")
+    implementation("com.google.guava:guava:31.1-jre")
+    implementation("com.opencsv:opencsv:5.7.1")
     implementation("org.apache.commons:commons-lang3:3.12.0")
 }
 

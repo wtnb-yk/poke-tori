@@ -1,4 +1,5 @@
 import com.google.common.io.Files
+import com.opencsv.CSVWriter
 import org.apache.commons.lang3.StringUtils
 import java.io.File
 import java.nio.charset.StandardCharsets
@@ -33,7 +34,7 @@ fun main() {
     val parties = mutableListOf<List<String>>()
 
     for (start in pokemonNames.indices) {
-        if (pokemonNames[start].first() != initial) continue
+        if (convertToUnvoicedConsonant(pokemonNames[start].first()) != initial) continue
 
         val used = mutableSetOf(start)
         val path = mutableListOf(pokemonNames[start])
@@ -65,9 +66,7 @@ fun main() {
         search()
     }
 
-    parties.forEach {
-        println(it)
-    }
+    writeCSV(parties, input)
 }
 
 private fun getPokemonList(filePath: String, doubleQuote: Boolean = false): Stream<Map<String, String>> {
@@ -112,4 +111,15 @@ private fun retrieveLastCharacter(str: String): Char {
 
 private fun isKatakanaOneChar(str: String): Boolean {
     return str.matches(Regex("[ァ-ヶ]"))
+}
+
+private fun writeCSV(parties: MutableList<List<String>>, fileName: String) {
+    val filePath = "./src/main/resources/${fileName}.csv"
+    val csvWriter = CSVWriter(File(filePath).writer())
+
+    for (line in parties) {
+        csvWriter.writeNext(line.toTypedArray())
+    }
+
+    csvWriter.close()
 }
