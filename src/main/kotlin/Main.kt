@@ -36,7 +36,7 @@ fun main() {
     val parties = mutableListOf<List<String>>()
 
     for (start in pokemonNames.indices) {
-        if (convertToUnvoicedConsonant(pokemonNames[start].first()) != initial) continue
+        if (pokemonNames[start].first() != initial) continue
 
         val used = mutableSetOf(start)
         val path = mutableListOf(pokemonNames[start])
