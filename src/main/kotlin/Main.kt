@@ -3,6 +3,8 @@ import com.opencsv.CSVWriter
 import org.apache.commons.lang3.StringUtils
 import java.io.File
 import java.nio.charset.StandardCharsets
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import java.util.stream.Collectors
 import java.util.stream.Stream
 
@@ -66,7 +68,8 @@ fun main() {
         search()
     }
 
-    writeCSV(parties, input)
+    println("検索結果: ${parties.size}件")
+    writeCSV(parties)
 }
 
 private fun getPokemonList(filePath: String, doubleQuote: Boolean = false): Stream<Map<String, String>> {
@@ -113,8 +116,12 @@ private fun isKatakanaOneChar(str: String): Boolean {
     return str.matches(Regex("[ァ-ヶ]"))
 }
 
-private fun writeCSV(parties: MutableList<List<String>>, fileName: String) {
-    val filePath = "./src/main/resources/${fileName}.csv"
+private fun writeCSV(parties: MutableList<List<String>>) {
+    val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+    val now = LocalDateTime.now()
+    val formatted = now.format(formatter)
+
+    val filePath = "./src/main/resources/${formatted}.csv"
     val csvWriter = CSVWriter(File(filePath).writer())
 
     for (line in parties) {
