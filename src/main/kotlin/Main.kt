@@ -121,7 +121,7 @@ private fun writeCSV(parties: MutableList<List<String>>) {
     val now = LocalDateTime.now()
     val formatted = now.format(formatter)
 
-    val filePath = "./src/main/resources/${formatted}.csv"
+    val filePath = "./src/main/resources/output/${formatted}.csv"
     val csvWriter = CSVWriter(File(filePath).writer())
 
     for (line in parties) {
