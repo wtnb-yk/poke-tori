@@ -2,6 +2,7 @@ import com.google.common.io.Files
 import com.opencsv.CSVWriter
 import org.apache.commons.lang3.StringUtils
 import java.io.File
+import java.nio.charset.Charset
 import java.nio.charset.StandardCharsets
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -122,7 +123,8 @@ private fun writeCSV(parties: MutableList<List<String>>) {
     val formatted = now.format(formatter)
 
     val filePath = "./src/main/resources/output/${formatted}.csv"
-    val csvWriter = CSVWriter(File(filePath).writer())
+    val charset = Charset.forName("sjis")
+    val csvWriter = CSVWriter(File(filePath).writer(charset))
 
     for (line in parties) {
         csvWriter.writeNext(line.toTypedArray())
