@@ -6,6 +6,19 @@ import java.util.stream.Collectors
 import java.util.stream.Stream
 
 fun main() {
+    // カタカナを入力
+    println("カタカナ１文字を入力")
+    val input = readln()
+    println("頭文字: $input")
+
+    // カタカナ１文字以外が入力されたら処理終了
+    if (!isKatakanaOneChar(input)) {
+        println("カタカナ１文字以外が入力されたため処理終了")
+        return
+    }
+
+    val initial = input.toCharArray()[0]
+
     // ポケモンの一覧を取得
     val pokemonList = getPokemonList("./src/main/resources/pokemon.csv")
 
@@ -20,6 +33,8 @@ fun main() {
     val parties = mutableListOf<List<String>>()
 
     for (start in pokemonNames.indices) {
+        if (pokemonNames[start].first() != initial) continue
+
         val used = mutableSetOf(start)
         val path = mutableListOf(pokemonNames[start])
         var lastStr = retrieveLastCharacter(pokemonNames[start])
@@ -93,4 +108,8 @@ private fun retrieveLastCharacter(str: String): Char {
     } else {
         str[lastStrIndex]
     }
+}
+
+private fun isKatakanaOneChar(str: String): Boolean {
+    return str.matches(Regex("[ァ-ヶ]"))
 }
