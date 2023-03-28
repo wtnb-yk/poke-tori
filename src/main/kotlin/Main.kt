@@ -6,65 +6,52 @@ import java.util.stream.Collectors
 import java.util.stream.Stream
 
 fun main() {
-    // カタカナを入力
-    println("カタカナ１文字を入力")
-    val input = readln()
-    println("頭文字: $input")
-
-    // カタカナ１文字以外が入力されたら処理終了
-    if (!isKatakanaOneChar(input)) {
-        println("カタカナ１文字以外が入力されたため処理終了")
-        return
-    }
-
     // ポケモンの一覧を取得
     val pokemonList = getPokemonList("./src/main/resources/pokemon.csv")
 
-    // 先頭の文字ごとにマッピング
-    val pokemonKanaMap = pokemonList
+    // 名前のlistを作成
+    val pokemonNames = pokemonList
         .flatMap { it.entries.stream() }
-        .collect(Collectors.groupingBy { convertToUnvoicedConsonant(it.value.toCharArray()[0]) })
+        .filter { it.key == "name" }
+        .map { it.value }
+        .collect(Collectors.toList())
 
     // 取得した一覧でしりとりを開始
-    var parties = emptyArray<Array<String>>()
+    val parties = mutableListOf<List<String>>()
 
-    val initial = input.toCharArray()[0]
-    val pokemonGroupingByKana = pokemonKanaMap[initial]
-    if (pokemonGroupingByKana == null) {
-        println("対象の文字で始まるポケモンがいなかったため処理終了")
-        return
-    }
+    for (start in pokemonNames.indices) {
+        val used = mutableSetOf(start)
+        val path = mutableListOf(pokemonNames[start])
+        var lastStr = retrieveLastCharacter(pokemonNames[start])
+        var current = convertToUnvoicedConsonant(lastStr)
 
-    for ((_, name) in pokemonGroupingByKana) {
-        var party = emptyArray<String>()
+        fun search() {
+            if (path.size == 6) {
+                parties.add(path.toList())
+                return
+            }
 
-        // 1匹目をパーティに追加
-        party += name
-
-        // TODO: 2~6匹目をしりとりで探索
-        //// 前のポケモンの名前の末尾を取得
-        val lastKana = retrieveLastCharacter(name)
-
-        //// 濁音、半濁音、拗音は変換する
-        val pokemonGroupingByNextKana = pokemonKanaMap[convertToUnvoicedConsonant(lastKana)]
-        if (pokemonGroupingByNextKana != null) {
-            for ((_, name2) in pokemonGroupingByNextKana) {
-                party += name2
+            for (next in pokemonNames.indices) {
+                if (next !in used
+                    && convertToUnvoicedConsonant(pokemonNames[next].first()) == current) {
+                    used.add(next)
+                    path.add(pokemonNames[next])
+                    lastStr = retrieveLastCharacter(pokemonNames[next])
+                    current = convertToUnvoicedConsonant(lastStr)
+                    search()
+                    used.remove(next)
+                    path.removeAt(path.lastIndex)
+                    lastStr = retrieveLastCharacter(path.last())
+                    current = convertToUnvoicedConsonant(lastStr)
+                }
             }
         }
 
-        // パーティが6匹になったら返却値に追加
-//        if (party.size == 6) {
-//            parties += party
-//        }
-        // TODO: 6匹分のしりとりの処理ができるまで一旦書きの実装にしておく
-        parties += party
+        search()
     }
 
     parties.forEach {
-        if (it.isNotEmpty()) {
-            println(it.contentToString())
-        }
+        println(it)
     }
 }
 
@@ -106,8 +93,4 @@ private fun retrieveLastCharacter(str: String): Char {
     } else {
         str[lastStrIndex]
     }
-}
-
-private fun isKatakanaOneChar(str: String): Boolean {
-    return str.matches(Regex("[ァ-ヶ]"))
 }
