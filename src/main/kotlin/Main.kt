@@ -8,6 +8,7 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.stream.Collectors
 import java.util.stream.Stream
+import kotlin.streams.toList
 
 fun main() {
     // カタカナを入力
@@ -42,7 +43,7 @@ fun main() {
         val used = mutableSetOf(start)
         val path = mutableListOf(pokemonNames[start])
         var lastStr = retrieveLastCharacter(pokemonNames[start])
-        var current = convertToUnvoicedConsonant(lastStr)
+        var current = convertToUnvoicedConsonant(lastStr
 
         fun search() {
             // 6匹分しりとりが終わったら終了
@@ -73,6 +74,28 @@ fun main() {
     println("検索結果: ${parties.size}件")
     writeCSV(parties)
 }
+
+data class Pokemons(val values: List<Pokemon>)
+data class Pokemon(val name: PokemonName)
+data class PokemonName(val value: String)
+
+private fun getPokemonList2(filePath: String, doubleQuote: Boolean = false): Pokemons  {
+    val enclosure = if (doubleQuote) "\"" else ""
+    val charSource = Files.asCharSource(File(filePath), StandardCharsets.UTF_8)
+
+    // ヘッダ行
+    val headers = charSource.readFirstLine()?.let {
+        parseLine(it, enclosure)
+    } ?: throw RuntimeException("Header is empty.")
+
+    // データ行
+    return charSource.lines()
+        .skip(1)
+        .toList()
+        .map { Pokemon(PokemonName(it)) }
+        .let(::Pokemons)
+}
+
 
 private fun getPokemonList(filePath: String, doubleQuote: Boolean = false): Stream<Map<String, String>> {
     val enclosure = if (doubleQuote) "\"" else ""
