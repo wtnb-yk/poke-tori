@@ -26,7 +26,7 @@ fun main() {
     // ポケモンの一覧を取得
     val pokemonList = getPokemonList("./src/main/resources/pokemon.csv")
 
-    // 名前のlistを作成
+    // 名前の一覧を作成
     val pokemonNames = pokemonList
         .flatMap { it.entries.stream() }
         .filter { it.key == "name" }
@@ -45,6 +45,7 @@ fun main() {
         var current = convertToUnvoicedConsonant(lastStr)
 
         fun search() {
+            // 6匹分しりとりが終わったら終了
             if (path.size == 6) {
                 parties.add(path.toList())
                 return
